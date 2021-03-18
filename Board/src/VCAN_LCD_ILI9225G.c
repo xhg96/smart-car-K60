@@ -1,0 +1,210 @@
+#include "common.h"	 
+#include "MK60_gpio.h"
+#include "VCAN_LCD_ILI9225G.h"
+
+/*!
+ *  @brief      LCD_ILI9225G初始化
+ */
+void LCD_ILI9225_init(void)
+{ 	
+	uint8 n ;
+    
+	for(n = 0; n < 8; n++)
+	{
+	    gpio_init  ((PTXn_e)(PTB0 + n), GPO, 0);
+	}
+    
+    gpio_init  (LCD_ILI9225_WR, GPO, 0);    
+    gpio_init  (LCD_ILI9225_RD, GPO, 1);
+    gpio_init  (LCD_ILI9225_CS, GPO, 1);
+    gpio_init  (LCD_ILI9225_RS, GPO, 0);
+    gpio_init  (LCD_ILI9225_RST, GPO, 1);     
+    
+    port_init  (LCD_ILI9225_WR , ALT1 | HDS);
+    port_init  (LCD_ILI9225_RD , ALT1 | HDS);
+    port_init  (LCD_ILI9225_CS , ALT1 | HDS);
+    port_init  (LCD_ILI9225_RS , ALT1 | HDS);
+    
+    
+	LCD_ILI9225_WR_CMD(0x0028);
+	LCD_ILI9225_WR_DATA(0x00CE);    //SOFTWVAE RESET
+	DELAY_MS(100);
+	LCD_ILI9225_WR_CMD(0x0028);
+	LCD_ILI9225_WR_DATA(0x01CE);
+    
+    LCD_ILI9225_WR_CMD(0x0000);
+	LCD_ILI9225_WR_DATA(0x0001);
+	
+	LCD_ILI9225_WR_CMD(0x0001);    //Driver output control
+	LCD_ILI9225_WR_DATA(0x011C);
+	
+	LCD_ILI9225_WR_CMD(0x0002);    //LCD Driving waveform control
+	LCD_ILI9225_WR_DATA(0x0100);	
+
+    //扫描方向
+    LCD_ILI9225_WR_CMD(0x0003);
+#if (ILI9225_DIR == 0)    
+    LCD_ILI9225_WR_DATA(0x1030);
+#else
+	LCD_ILI9225_WR_DATA(0x1028);
+#endif
+    
+    LCD_ILI9225_WR_CMD(0x0008);	   //set BP and FP
+	LCD_ILI9225_WR_DATA(0x0303);		
+    
+	LCD_ILI9225_WR_CMD(0x000C);	   //18bit RGB
+	LCD_ILI9225_WR_DATA(0x0000);	
+	
+	LCD_ILI9225_WR_CMD(0x000F);	   //osc control
+	LCD_ILI9225_WR_DATA(0x0601);	
+	
+	LCD_ILI9225_WR_CMD(0x0020);
+	LCD_ILI9225_WR_DATA(0x0000); 
+	
+	LCD_ILI9225_WR_CMD(0x0021);
+	LCD_ILI9225_WR_DATA(0x0000); 
+	DELAY_MS(100);
+	
+    //POWER CONTROL
+	LCD_ILI9225_WR_CMD(0x0010);	   //SET SAP,DSTB,STB
+	LCD_ILI9225_WR_DATA(0x0A00);			
+	
+	LCD_ILI9225_WR_CMD(0x0011);	   //SET APON,PON,AON,VI1EN,VC
+	LCD_ILI9225_WR_DATA(0x1037);		
+	
+	LCD_ILI9225_WR_CMD(0x0012);    //DDVDH,VCL,VGH,VGL
+	LCD_ILI9225_WR_DATA(0x5121);	
+	
+	LCD_ILI9225_WR_CMD(0x0013);	   //SOURCE VOLTAGE
+	LCD_ILI9225_WR_DATA(0x0066);
+    DELAY_MS(100);	
+	
+	LCD_ILI9225_WR_CMD(0x0014);    //Vcom , VCOMLamplitude
+	LCD_ILI9225_WR_DATA(0x5a62);   //Vcomh
+	DELAY_MS(100);
+	
+	LCD_ILI9225_WR_CMD(0x0030);    //GATE SCAN CONTROL
+	LCD_ILI9225_WR_DATA(0x0000); 
+	
+	LCD_ILI9225_WR_CMD(0x0031);    //Vertical scrol control(end)
+	LCD_ILI9225_WR_DATA(0x00DB);
+	
+  	LCD_ILI9225_WR_CMD(0x0032);    //Vertical scrol control(stard)
+	LCD_ILI9225_WR_DATA(0x0000);
+	
+	LCD_ILI9225_WR_CMD(0x0033);    
+	LCD_ILI9225_WR_DATA(0x0000);    
+	
+	LCD_ILI9225_WR_CMD(0x0036); 
+	LCD_ILI9225_WR_DATA(0x00AF); 
+	
+  	LCD_ILI9225_WR_CMD(0x0037);
+	LCD_ILI9225_WR_DATA(0x0000);	
+	
+  	LCD_ILI9225_WR_CMD(0x0038);
+	LCD_ILI9225_WR_DATA(0x00DB);
+	
+	LCD_ILI9225_WR_CMD(0x0039);
+	LCD_ILI9225_WR_DATA(0x0000);
+    
+    //gamma
+	LCD_ILI9225_WR_CMD(0x0050);
+	LCD_ILI9225_WR_DATA(0x0000);	//pv8;v1
+	
+	LCD_ILI9225_WR_CMD(0x0051);
+	LCD_ILI9225_WR_DATA(0x050C);	//pv43,v20
+	
+	LCD_ILI9225_WR_CMD(0x0052);
+	LCD_ILI9225_WR_DATA(0x0C09);	//pv62,v55
+	
+	LCD_ILI9225_WR_CMD(0x0053);
+	LCD_ILI9225_WR_DATA(0x0204);
+	
+	LCD_ILI9225_WR_CMD(0x0054);
+	LCD_ILI9225_WR_DATA(0x090C);	//nv55,v62
+	
+	LCD_ILI9225_WR_CMD(0x0055);
+	LCD_ILI9225_WR_DATA(0x0C05);	//nv20,v43
+	
+  	LCD_ILI9225_WR_CMD(0x0056);
+	LCD_ILI9225_WR_DATA(0x0404);	//nv1,v8
+	
+	LCD_ILI9225_WR_CMD(0x0057);
+	LCD_ILI9225_WR_DATA(0x0402);
+	
+	LCD_ILI9225_WR_CMD(0x0058);
+	LCD_ILI9225_WR_DATA(0x0A00);
+	
+	LCD_ILI9225_WR_CMD(0x0059);
+	LCD_ILI9225_WR_DATA(0x000A);
+	
+    /******* display on ********/
+	LCD_ILI9225_WR_CMD(0x0007);
+	LCD_ILI9225_WR_DATA(0x0012);
+	
+	DELAY_MS(100);
+	
+	LCD_ILI9225_WR_CMD(0x0007);
+	LCD_ILI9225_WR_DATA(0x1017);
+   
+}  		  
+
+/*!
+ *  @brief      设置ILI9225开窗
+ *  @param      site        左上角坐标位置
+ *  @param      size        开窗大小
+ */
+void LCD_ILI9225_ptlon(Site_t site, Size_t size)
+{
+#if (ILI9225_DIR == 0)
+    LCD_ILI9225_WR_CMD(0x0037);    //x1
+	LCD_ILI9225_WR_DATA(site.x);    
+	
+	LCD_ILI9225_WR_CMD(0x0036);    //x2
+	LCD_ILI9225_WR_DATA((site.x + size.W - 1));
+
+    LCD_ILI9225_WR_CMD(0x0039);    //y1
+    LCD_ILI9225_WR_DATA(site.y); //start
+
+	LCD_ILI9225_WR_CMD(0x0038);    //y2
+    LCD_ILI9225_WR_DATA((site.y + size.H - 1));
+
+
+    LCD_ILI9225_WR_CMD(0x0020);  //HS
+	LCD_ILI9225_WR_DATA(site.x);
+
+	LCD_ILI9225_WR_CMD(0x0021);  //VS
+	LCD_ILI9225_WR_DATA(site.y); 
+#else
+    LCD_ILI9225_WR_CMD(0x0037);    //x1  
+	LCD_ILI9225_WR_DATA(176 - (site.y + size.H));
+	
+	LCD_ILI9225_WR_CMD(0x0036);    //x2
+	LCD_ILI9225_WR_DATA(176 - site.y - 1); 
+
+    LCD_ILI9225_WR_CMD(0x0039);    //y1
+    LCD_ILI9225_WR_DATA(site.x);
+
+	LCD_ILI9225_WR_CMD(0x0038);    //y2
+	LCD_ILI9225_WR_DATA(site.x + size.W - 1);
+
+
+    LCD_ILI9225_WR_CMD(0x0020);  //HS
+	LCD_ILI9225_WR_DATA(176 - (site.y + size.H));
+
+	LCD_ILI9225_WR_CMD(0x0021);  //VS
+	LCD_ILI9225_WR_DATA(site.x);
+#endif
+
+}
+
+
+/*!
+ *  @brief      设置ILI9341GRAM指针扫描方向
+ *  @param      option    方向选择（0~3）
+ */
+void LCD_ILI9225_dir(uint8 option)
+{
+
+}
+
